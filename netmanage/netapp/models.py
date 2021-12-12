@@ -16,5 +16,5 @@ class AllDevices(models.Model):
     port = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(65535)])
 
     def __str__(self):
-        return self.ip
+        return self.host
 

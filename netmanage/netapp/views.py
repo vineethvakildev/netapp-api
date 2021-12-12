@@ -4,24 +4,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.views import View
 from rest_framework.views import APIView
-from .serializers import NetmikoSerializer, NetconfSerializer
+from . import validators
 from jinja2 import Template
-from .utils.xml_templates import loopback_config, loopback_delete_config
+from .utils.xml_templates import loopback_ipv4_config, loopback_ipv6_config, loopback_delete_config
 from .utils.connect import nc_connect, get_nc_connection_params, get_connection_params, cli_connect
 import json
-
-
-class ListInterfacesView(APIView):
-
-    def get(self, request):
-
-        host = self.request.GET['host']
-        connection_params, text_fsm_platform = get_connection_params(host)
-
-        command = "show ip interface brief"
-        response = cli_connect(connection_params, command, text_fsm_platform)
-
-        return response
 
 
 class ConfigureDeviceView(APIView):
@@ -30,10 +17,18 @@ class ConfigureDeviceView(APIView):
 
         content = json.loads(self.request.body)
 
-        tm = Template(loopback_config)
+        validation = validators.validate_api(content)
+        if not validation["success"]:
+            return Response(data=validation, status=status.HTTP_400_BAD_REQUEST)
+
+        if content['protocol'] == 'ipv4':
+            tm = Template(loopback_ipv4_config)
+        else:
+            tm = Template(loopback_ipv6_config)
+
         payload = tm.render(loopbacks=content['loopbacks'])
 
-        if content['dryrun']:
+        if content['dryrun'] in ['True', 1]:
             return JsonResponse(data=payload, safe=False)
 
         connection_params = get_nc_connection_params(content['host'])
@@ -45,13 +40,31 @@ class ConfigureDeviceView(APIView):
 
         content = json.loads(self.request.body)
 
+        validation = validators.validate_api(content)
+        if not validation["success"]:
+            return Response(data=validation, status=status.HTTP_400_BAD_REQUEST)
+
         tm = Template(loopback_delete_config)
         payload = tm.render(loopbacks=content['loopbacks'])
 
-        if content['dryrun']:
+        if content['dryrun'] in ['True', 1]:
             return JsonResponse(data=payload, safe=False)
 
         connection_params = get_nc_connection_params(content['host'])
 
         response = nc_connect(connection_params, payload)
+        return response
+
+
+class ListInterfacesView(APIView):
+
+    def get(self, request):
+
+        host = self.request.GET['host']
+
+        connection_params, text_fsm_platform = get_connection_params(host)
+
+        command = "show ip interface brief"
+        response = cli_connect(connection_params, command, text_fsm_platform)
+
         return response

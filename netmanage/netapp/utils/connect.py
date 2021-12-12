@@ -12,13 +12,32 @@ from ntc_templates.parse import parse_output
 from ..models import AllDevices
 from ..serializers import NetmikoSerializer, NetconfSerializer
 
+def handle_error(content):
+    res = {"success": True, "errors": None, "details": None}
+    if validation.is_valid():
+        res["success"] = True
+    else:
+        res["success"] = False
+        res["details"] = "Bad Request Body"
+        res["errors"] = validation.errors
+    return res
+
 
 def get_connection_params(host):
-    queryset = AllDevices.objects.get(host__iexact=host)
-    device_details = NetmikoSerializer(queryset)
-    connection_params = device_details.data
-    return connection_params, queryset.platform
+    result = {"success": True, "errors": None, "details": None, "connection_params": None, "platform": None }
+    try:
+        queryset = AllDevices.objects.get(host__iexact=host)
+        platform = queryset.platform
+        device_details = NetmikoSerializer(queryset)
+        connection_params = device_details.data
+        result['connection_params'] = connection_params
+        result['platform'] = platform
+    except Exception as e:
+        result["success"] = False
+        result["details"] = "Invalid host"
+        result["errors"] = e.__class__.__name__
 
+    return result
 
 def get_nc_connection_params(host):
     queryset = AllDevices.objects.get(host__iexact=host)
@@ -29,7 +48,7 @@ def get_nc_connection_params(host):
 
 
 def nc_connect(connection_params, data):
-
+    message = ""
     try:
         with manager.connect(**connection_params) as m:
             nc_reply = m.edit_config(data, target="candidate")
@@ -39,14 +58,11 @@ def nc_connect(connection_params, data):
                 message = "Success"
                 code = status.HTTP_200_OK
     except RPCError as e:
-        message = e.__class__.__name__
-        code = status.HTTP_400_BAD_REQUEST
+        message = f"Error: {e.__class__.__name__} occurred - {e.tag}"
     except (SessionCloseError, SSHError, SSHUnknownHostError) as e:
-        message = e.__class__.__name__
-        code = status.HTTP_503_SERVICE_UNAVAILABLE
+        message = f"Error: {e.__class__.__name__} occurred - {e.tag}"
     except Exception as e:
-        message = e.__class__.__name__
-        code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        message = f"Error: {e.__class__.__name__} occurred - {e.tag}"
     finally:
         response = Response(data={
             "message": message
@@ -56,8 +72,8 @@ def nc_connect(connection_params, data):
 
 
 def cli_connect(connection_params, command, text_fsm_platform):
-
     interface_parsed = {}
+    message = ""
     try:
         net_connect = ConnectHandler(**connection_params)
         output = net_connect.send_command(command)
@@ -65,10 +81,10 @@ def cli_connect(connection_params, command, text_fsm_platform):
         message = "Success"
         code = status.HTTP_200_OK
     except (NetMikoTimeoutException, SSHException) as e:
-        message = e.__class__.__name__
+        message = f"Error: {e.__class__.__name__} occurred - {e.tag}"
         code = status.HTTP_503_SERVICE_UNAVAILABLE
     except Exception as e:
-        message = e.__class__.__name__
+        message = f"Error: {e.__class__.__name__} occurred - {e.tag}"
         code = status.HTTP_500_INTERNAL_SERVER_ERROR
     finally:
         response = Response(data={

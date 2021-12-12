@@ -1,4 +1,4 @@
-loopback_config = """
+loopback_ipv4_config = """
 <config>
 <interface-configurations xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ifmgr-cfg">
 {% for loopback in loopbacks %}
@@ -9,13 +9,37 @@ loopback_config = """
     <ipv4-network xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ipv4-io-cfg">
      <addresses>
       <primary>
-       <address>{{ loopback.ipv4_add }}</address>
-       <netmask>255.255.255.255</netmask>
+       <address>{{ loopback.ip_add }}</address>
+       <netmask>{{ loopback.prefix}}</netmask>
       </primary>
      </addresses>
     </ipv4-network>
    </interface-configuration>
    {% endfor %}
+</interface-configurations>
+</config>
+"""
+
+loopback_ipv6_config = """
+<config>
+<interface-configurations xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ifmgr-cfg">
+{% for loopback in loopbacks %}
+ <interface-configuration>
+  <active>act</active>
+  <interface-name>Loopback{{ loopback.name }}</interface-name>
+  <interface-virtual></interface-virtual>
+  <ipv6-network xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ipv6-ma-cfg">
+   <addresses>
+    <regular-addresses>
+     <regular-address>
+      <address>{{ loopback.ip_add }}</address>
+      <prefix-length>{{ loopback.prefix }}</prefix-length>
+     </regular-address>
+    </regular-addresses>
+   </addresses>
+  </ipv6-network>
+ </interface-configuration>
+{% endfor %}
 </interface-configurations>
 </config>
 """
