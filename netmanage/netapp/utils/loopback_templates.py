@@ -1,8 +1,8 @@
-loopback_ipv4_config = """
-<config>
+LOOPBACK_IPV4_CONFIG = """
+<config xmlns:xc="urn:ietf:params:xml:ns:netconf:base:1.0">
 <interface-configurations xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ifmgr-cfg">
 {% for loopback in loopbacks %}
-    <interface-configuration>
+    <interface-configuration xc:operation="create">
     <active>act</active>
     <interface-name>Loopback{{ loopback.name }}</interface-name>
     <interface-virtual></interface-virtual>
@@ -20,11 +20,11 @@ loopback_ipv4_config = """
 </config>
 """
 
-loopback_ipv6_config = """
-<config>
+LOOPBACK_IPV6_CONFIG = """
+<config xmlns:xc="urn:ietf:params:xml:ns:netconf:base:1.0">
 <interface-configurations xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ifmgr-cfg">
 {% for loopback in loopbacks %}
- <interface-configuration>
+ <interface-configuration xc:operation="create">
   <active>act</active>
   <interface-name>Loopback{{ loopback.name }}</interface-name>
   <interface-virtual></interface-virtual>
@@ -44,7 +44,7 @@ loopback_ipv6_config = """
 </config>
 """
 
-loopback_delete_config = """
+LOOPBACK_DELETE_CONFIG = """
 <config xmlns:xc="urn:ietf:params:xml:ns:netconf:base:1.0">
 <interface-configurations xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ifmgr-cfg">
     {% for loopback in loopbacks %}
