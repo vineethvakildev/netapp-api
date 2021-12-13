@@ -11,6 +11,7 @@ import json
 
 
 class ConfigureDeviceView(APIView):
+
     def post(self, request):
 
         content = json.loads(self.request.body)
