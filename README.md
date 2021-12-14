@@ -120,7 +120,15 @@ djangorestframework==3.12.4         ncclient~=0.6.12
 
 
 
+*Build Docker container*
 
+sudo docker build -t django-netapp .
+
+sudo docker run -it -p 8020:8020 \
+     -e DJANGO_SUPERUSER_USERNAME=admin \
+     -e DJANGO_SUPERUSER_PASSWORD=vineeth \
+     -e DJANGO_SUPERUSER_EMAIL=vineeth@uk.com \
+     django-netapp
 
 
 
