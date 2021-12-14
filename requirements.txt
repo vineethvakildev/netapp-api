@@ -4,7 +4,7 @@ djangorestframework==3.12.4
 pytz==2021.3
 sqlparse==0.4.2
 typing_extensions==4.0.1
-
+ntc-templates==3.0.0
 netmiko~=3.4.0
 ncclient~=0.6.12
 Jinja2~=3.0.3
