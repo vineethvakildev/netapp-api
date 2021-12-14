@@ -30,7 +30,7 @@ class ConfigureDeviceTest(TestCase):
                 {"name": 2, "ip_add": "2.2.2.2", "prefix": "255.255.255.255"},
             ],
             "host": "192.168.23.131",
-            "dryrun": "False",
+            "dryrun": "True",
             "protocol": "ipv4",
         }
         parsed_json = json.dumps(config_ipv4)
@@ -48,7 +48,7 @@ class ConfigureDeviceTest(TestCase):
                 {"name": 2, "ip_add": "1.1.1.2", "prefix": "255.255.255.255"},
             ],
             "host": "192.168.23.131",
-            "dryrun": "False",
+            "dryrun": "True",
             "protocol": "ipv4",
         }
         parsed_json = json.dumps(config_ipv4)
