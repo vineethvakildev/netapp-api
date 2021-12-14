@@ -1,0 +1,12 @@
+web:
+  build: .
+web_migrate:
+  extends:
+    service: web
+  command: python manage.py migrate
+web_run:
+  extends:
+    service: web
+  command: python manage.py runserver 0.0.0.0:8000
+  ports:
+    - "8000:8000"
