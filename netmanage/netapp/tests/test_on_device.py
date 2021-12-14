@@ -56,7 +56,7 @@ class ConfigureDeviceTest(TestCase):
         response = self.client.delete(
             reverse("configure"), parsed_json, content_type="application/json"
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
 
 
 class ListInterfacesTest(TestCase):
