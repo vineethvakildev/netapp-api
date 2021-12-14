@@ -16,14 +16,17 @@ class ConfigureDeviceView(APIView):
 
         content = json.loads(self.request.body)
 
+        # validate user input
         validation = validators.validate_api(content)
         if not validation["success"]:
             return Response(data=validation, status=status.HTTP_400_BAD_REQUEST)
 
+        # get the connection parameters required for netconf client lib
         result, connection_params = params.get_nc_connection_params(content["host"])
         if not result["success"]:
             return Response(data=result, status=status.HTTP_400_BAD_REQUEST)
 
+        # render xml template based on ip protocol
         if content["protocol"] == "ipv4":
             tm = Template(tmpl.LOOPBACK_IPV4_CONFIG)
         else:
@@ -34,6 +37,7 @@ class ConfigureDeviceView(APIView):
         if content["dryrun"] in ["True", 1]:
             return Response(data=payload, status=status.HTTP_200_OK)
 
+        # connect and send data to the device
         result = connect.nc_connect(connection_params, payload)
         if not result["success"]:
             return Response(data=result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -43,10 +47,12 @@ class ConfigureDeviceView(APIView):
 
         content = json.loads(self.request.body)
 
+        # validate user input
         validation = validators.validate_api(content)
         if not validation["success"]:
             return Response(data=validation, status=status.HTTP_400_BAD_REQUEST)
 
+        # get the connection parameters required for netconf client lib
         result, connection_params = params.get_nc_connection_params(content["host"])
         if not result["success"]:
             return Response(data=result, status=status.HTTP_400_BAD_REQUEST)
@@ -57,6 +63,7 @@ class ConfigureDeviceView(APIView):
         if content["dryrun"] in ["True", 1]:
             return Response(data=payload, status=status.HTTP_200_OK)
 
+        # connect and send data to the device
         result = connect.nc_connect(connection_params, payload)
         if not result["success"]:
             return Response(data=result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -67,12 +74,14 @@ class ListInterfacesView(APIView):
     def get(self, request):
         host = self.request.GET.get("host")
 
+        # get the connection parameters required for ssh client lib
         result, connection_params, text_fsm_platform = params.get_connection_params(
             host
         )
         if not result["success"]:
             return Response(data=result, status=status.HTTP_400_BAD_REQUEST)
 
+        # connect to device and send command
         command = "show ip interface brief"
         result = connect.cli_connect(connection_params, command, text_fsm_platform)
 
