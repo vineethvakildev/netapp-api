@@ -1,0 +1,37 @@
+version: v1.0
+name: Initial Pipeline
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2004
+blocks:
+  - name: Build
+    task:
+      jobs:
+        - name: Build
+          commands:
+            - sem-version python 3.8
+            - checkout
+            - mkdir .pip_cache
+            - cache restore
+            - pip install --cache-dir .pip_cache -r requirements.txt
+            - cache store
+  - name: 'Block #2'
+    task:
+      prologue:
+        commands:
+          - sem-version python 3.8
+          - checkout
+          - cache restore
+          - pip install --cache-dir .pip_cache -r requirements.txt
+      jobs:
+        - name: Unit tests
+          commands:
+            - cd netmanage
+            - python manage.py makemigrations
+            - python manage.py migrate
+            - python manage.py test netapp.tests.test_dryrun
+        - name: Checklist
+          commands:
+            - cd netmanage
+            - python manage.py check --deploy
