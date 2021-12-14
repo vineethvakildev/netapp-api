@@ -7,6 +7,12 @@ from ntc_templates.parse import parse_output
 
 
 def nc_connect(connection_params, data):
+    """
+
+    :param connection_params:
+    :param data:
+    :return: result
+    """
     result = {"success": True, "errors": None, "details": "Configuration applied"}
 
     try:
@@ -36,6 +42,13 @@ def nc_connect(connection_params, data):
 
 
 def cli_connect(connection_params, command, text_fsm_platform):
+    """
+
+    :param connection_params:
+    :param command:
+    :param text_fsm_platform:
+    :return: result
+    """
     result = {"success": True, "errors": None, "details": None}
 
     try:
