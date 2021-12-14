@@ -30,12 +30,8 @@ blocks:
             - cd netmanage
             - python manage.py makemigrations
             - python manage.py migrate
-            - python manage.py test
+            - python manage.py test netapp.tests.test_dryrun
         - name: Checklist
           commands:
             - cd netmanage
             - python manage.py check --deploy
-        - name: Style check
-          commands:
-            - pip install flake8
-            - flake8 netmanage/ --max-line-length=127
