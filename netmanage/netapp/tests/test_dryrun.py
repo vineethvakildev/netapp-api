@@ -3,7 +3,7 @@ from django.urls import reverse
 
 import json
 
-from .models import AllDevices
+from ..models import AllDevices
 
 
 class ConfigureDeviceTest(TestCase):
@@ -38,7 +38,7 @@ class ConfigureDeviceTest(TestCase):
         response = self.client.post(
             reverse("configure"), parsed_json, content_type="application/json"
         )
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
 
     def test_delete_netconf(self):
 
@@ -56,26 +56,4 @@ class ConfigureDeviceTest(TestCase):
         response = self.client.delete(
             reverse("configure"), parsed_json, content_type="application/json"
         )
-        self.assertEqual(response.status_code, 200)
-
-
-class ListInterfacesTest(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        AllDevices.objects.create(
-            host="192.168.23.131",
-            device_type="cisco_ios",
-            device_params="iosxr",
-            platform="cisco_xr",
-            username="vineeth",
-            password="cisco123",
-            secret="cisco123",
-            hostkey_verify=False,
-            allow_agent=False,
-            port=22,
-        )
-
-    def test_show_interface(self):
-        params = {"host": "192.168.23.131"}
-        response = self.client.get(reverse("interfaces"), params)
         self.assertEqual(response.status_code, 200)
